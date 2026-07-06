@@ -5,7 +5,7 @@ from typing import Any
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy import Column, Integer, String, create_engine, text
@@ -118,9 +118,6 @@ class UserOut(BaseModel):
     role: str
 
 
-class LoginRequest(BaseModel):
-    email: str
-    password: str
 
 
 class ChatRequest(BaseModel):
@@ -242,12 +239,32 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
 
 
 @app.post("/auth/login", response_model=Token)
-def login(payload: LoginRequest, db: Session = Depends(get_db)):
-    user = authenticate_user(db, payload.email, payload.password)
+def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db)
+):
+    user = authenticate_user(db, form_data.username, form_data.password)
+
     if not user:
-        raise HTTPException(status_code=401, detail="Incorrect email or password")
-    access_token = create_access_token(data={"sub": user.email})
-    return {"access_token": access_token, "token_type": "bearer", "user": {"id": user.id, "email": user.email, "full_name": user.full_name, "role": user.role}}
+        raise HTTPException(
+            status_code=401,
+            detail="Incorrect email or password"
+        )
+
+    access_token = create_access_token(
+        data={"sub": user.email}
+    )
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": {
+            "id": user.id,
+            "email": user.email,
+            "full_name": user.full_name,
+            "role": user.role
+        }
+    }
 
 
 @app.get("/auth/me")
