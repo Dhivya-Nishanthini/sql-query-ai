@@ -243,19 +243,42 @@ def read_root():
 
 @app.post("/auth/signup", response_model=Token)
 def signup(user: UserCreate, db: Session = Depends(get_db)):
+
+    print("========== SIGNUP DEBUG ==========")
+    print("EMAIL:", user.email)
+
     existing = db.query(User).filter(User.email == user.email).first()
+
+    print("EXISTING USER:", existing)
+
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
-    db_user = User(email=user.email, full_name=user.full_name, password_hash=get_password_hash(user.password))
+
+    db_user = User(
+        email=user.email,
+        full_name=user.full_name,
+        password_hash=get_password_hash(user.password)
+    )
+
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
-    
-    print("========== SIGNUP DEBUG ==========")
-print("SAVED USER:", db_user.email)
-print("USER ID:", db_user.id)
+
+    print("SAVED USER:", db_user.email)
+    print("USER ID:", db_user.id)
+
     access_token = create_access_token(data={"sub": db_user.email})
-    return {"access_token": access_token, "token_type": "bearer", "user": {"id": db_user.id, "email": db_user.email, "full_name": db_user.full_name, "role": db_user.role}}
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": {
+            "id": db_user.id,
+            "email": db_user.email,
+            "full_name": db_user.full_name,
+            "role": db_user.role
+        }
+    }
 
 
 @app.post("/auth/login", response_model=Token)
