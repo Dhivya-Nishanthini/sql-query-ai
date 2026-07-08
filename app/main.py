@@ -250,6 +250,10 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
+    
+    print("========== SIGNUP DEBUG ==========")
+print("SAVED USER:", db_user.email)
+print("USER ID:", db_user.id)
     access_token = create_access_token(data={"sub": db_user.email})
     return {"access_token": access_token, "token_type": "bearer", "user": {"id": db_user.id, "email": db_user.email, "full_name": db_user.full_name, "role": db_user.role}}
 
