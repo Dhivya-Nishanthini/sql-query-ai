@@ -368,7 +368,7 @@ def generate_sql_reply(prompt: str) -> str:
         fallback = "I can help with SQL generation, explanation, optimization, debugging, and database execution. The external AI provider is temporarily unavailable, so I’m providing a concise fallback response instead."
 
     if OPENAI_API_KEY:
-        try:
+        try:-
             response = requests.post(
                 "https://api.openai.com/v1/chat/completions",
                 headers={"Authorization": f"Bearer {OPENAI_API_KEY}", "Content-Type": "application/json"},
