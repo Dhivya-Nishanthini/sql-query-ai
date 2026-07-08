@@ -198,27 +198,17 @@ def create_access_token(data: dict[str, Any], expires_delta: timedelta | None = 
 
 
 def authenticate_user(db: Session, email: str, password: str):
-    print("========== LOGIN DEBUG ==========")
-    print("EMAIL:", email)
-
     user = db.query(User).filter(User.email == email).first()
 
-    print("USER FOUND:", user)
-
     if not user:
-        print("USER NOT FOUND")
         return None
 
-    print("PASSWORD HASH:", user.password_hash)
-
     ok = verify_password(password, user.password_hash)
-    print("PASSWORD VERIFIED:", ok)
 
     if not ok:
         return None
 
     return user
-
 
 def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
@@ -241,44 +231,7 @@ def read_root():
     return {"message": "SQL Genius AI API is running"}
 
 
-@app.post("/auth/signup", response_model=Token)
-def signup(user: UserCreate, db: Session = Depends(get_db)):
 
-    print("========== SIGNUP DEBUG ==========")
-    print("EMAIL:", user.email)
-
-    existing = db.query(User).filter(User.email == user.email).first()
-
-    print("EXISTING USER:", existing)
-
-    if existing:
-        raise HTTPException(status_code=400, detail="Email already registered")
-
-    db_user = User(
-        email=user.email,
-        full_name=user.full_name,
-        password_hash=get_password_hash(user.password)
-    )
-
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-
-    print("SAVED USER:", db_user.email)
-    print("USER ID:", db_user.id)
-
-    access_token = create_access_token(data={"sub": db_user.email})
-
-    return {
-        "access_token": access_token,
-        "token_type": "bearer",
-        "user": {
-            "id": db_user.id,
-            "email": db_user.email,
-            "full_name": db_user.full_name,
-            "role": db_user.role
-        }
-    }
 
 
 @app.post("/auth/login", response_model=Token)
