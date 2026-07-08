@@ -198,9 +198,25 @@ def create_access_token(data: dict[str, Any], expires_delta: timedelta | None = 
 
 
 def authenticate_user(db: Session, email: str, password: str):
+    print("========== LOGIN DEBUG ==========")
+    print("EMAIL:", email)
+
     user = db.query(User).filter(User.email == email).first()
-    if not user or not verify_password(password, user.password_hash):
+
+    print("USER FOUND:", user)
+
+    if not user:
+        print("USER NOT FOUND")
         return None
+
+    print("PASSWORD HASH:", user.password_hash)
+
+    ok = verify_password(password, user.password_hash)
+    print("PASSWORD VERIFIED:", ok)
+
+    if not ok:
+        return None
+
     return user
 
 
