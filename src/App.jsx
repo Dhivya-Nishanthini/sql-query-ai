@@ -55,12 +55,18 @@ function App() {
   const handleAuth = async (e) => {
     e.preventDefault();
     const endpoint = authMode === 'login' ? '/auth/login' : '/auth/signup';
-    const payload = authMode === 'login' ? { email, password } : { email, password, full_name: fullName };
-    const res = await fetch(`${API_BASE}${endpoint}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+    const requestInit = authMode === 'login'
+      ? {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({ username: email, password })
+        }
+      : {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, full_name: fullName })
+        };
+    const res = await fetch(`${API_BASE}${endpoint}`, requestInit);
     const data = await res.json();
     if (res.ok) {
       localStorage.setItem('token', data.access_token);
@@ -172,6 +178,11 @@ function App() {
   };
 
   const logout = () => {
+    fetch(`${API_BASE}/auth/logout`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({})
+    }).catch(() => {});
     localStorage.removeItem('token');
     setToken('');
     setUser(null);

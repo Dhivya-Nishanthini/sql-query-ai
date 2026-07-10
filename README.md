@@ -1,19 +1,24 @@
-# SQL Genius AI
+# SQL Query AI
 
-SQL Genius AI is a production-ready AI SQL assistant with a React + Vite frontend and a FastAPI backend. It supports:
+Production-ready FastAPI + React SQL assistant with JWT auth, refresh tokens, AI SQL generation, query execution, chat history, persistent memory, database connections, and upload/import support.
 
-- JWT authentication
-- ChatGPT-style SQL assistance
-- SQL generation, explanation, debugging, and optimization
-- SQLite/MySQL/PostgreSQL connection testing and query execution
-- Saved queries and chat history
+## Stack
 
-## Tech stack
+- Backend: FastAPI, SQLAlchemy, Alembic, Python 3.11
+- Auth: JWT, refresh tokens, Passlib bcrypt, python-jose
+- AI: OpenAI API or Gemini API
+- Frontend: React, Vite, Tailwind CSS
+- Databases: SQLite, PostgreSQL, MySQL
 
-- Backend: FastAPI, SQLAlchemy, Python 3.12
-- Frontend: React, Vite, Tailwind, Framer Motion, React Icons
-- AI: OpenAI or Gemini API
-- Database: SQLite (default), MySQL, PostgreSQL
+## Environment
+
+Copy `.env.example` to `.env` and set:
+
+- `DATABASE_URL`
+- `SECRET_KEY`
+- `OPENAI_API_KEY`
+- `GEMINI_API_KEY`
+- `DEFAULT_LLM_PROVIDER`
 
 ## Run locally
 
@@ -21,8 +26,9 @@ SQL Genius AI is a production-ready AI SQL assistant with a React + Vite fronten
 
 ```bash
 python -m venv .venv
-.venv\Scripts\activate
+.venv\\Scripts\\activate
 pip install -r requirements.txt
+alembic upgrade head
 uvicorn app.main:app --reload --port 8000
 ```
 
@@ -33,14 +39,32 @@ npm install
 npm run dev
 ```
 
-Visit http://localhost:5173
+## API
 
-## Environment variables
+- `POST /auth/signup`
+- `POST /auth/login`
+- `GET /auth/me`
+- `POST /auth/logout`
+- `POST /auth/refresh`
+- `POST /auth/verify-email`
+- `POST /auth/forgot-password`
+- `POST /auth/reset-password`
+- `POST /query`
+- `POST /query/explain`
+- `POST /query/optimize`
+- `GET /history`
+- `GET /history/{id}`
+- `GET /memory`
+- `POST /memory`
+- `POST /chat`
+- `GET /chat/{id}`
+- `GET /connections/profiles`
+- `POST /connections/test`
+- `POST /connections/execute`
+- `POST /connections/schema`
 
-Copy .env.example to .env and fill values.
+## Deployment
 
-## Docker
+- Render: use `render.yaml`
+- Docker: `docker build -t sql-query-ai .`
 
-```bash
-docker compose up --build
-```
